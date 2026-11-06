@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+/* The app switcher (@appthrust/app-launcher) ships Tailwind classes, not CSS. */
+@source '../node_modules/@appthrust/app-launcher/dist';
+
+/*
+ * One accent color (indigo, contacts' own); everything else is neutral stone.
+ * System font stack only, light only. Status colors are used through <Notice>
+ * and the OCR state badges (src/ui).
+ */
+@theme {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Noto Sans JP', Meiryo, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --color-accent: oklch(0.5 0.14 265);
+  --color-accent-strong: oklch(0.42 0.14 265);
+  --color-accent-soft: oklch(0.96 0.025 265);
+  --color-accent-line: oklch(0.86 0.06 265);
+
+  --color-surface: var(--color-white);
+  --color-canvas: var(--color-stone-50);
+  --color-line: var(--color-stone-200);
+
+  --color-ok: var(--color-accent);
+  --color-ok-soft: var(--color-accent-soft);
+  --color-busy: oklch(0.7 0.15 75);
+  --color-busy-soft: oklch(0.97 0.03 85);
+  --color-busy-ink: oklch(0.45 0.1 65);
+  --color-bad: oklch(0.55 0.2 27);
+  --color-bad-soft: oklch(0.97 0.02 20);
+  --color-bad-ink: oklch(0.45 0.16 27);
+
+  --animate-fade-in: fade-in 150ms ease-out;
+  --animate-slide-in-left: slide-in-left 200ms ease-out;
+  --animate-pop-in: pop-in 150ms ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-canvas font-sans text-sm text-stone-800 antialiased;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      transition-duration: 1ms !important;
+    }
+  }
+}

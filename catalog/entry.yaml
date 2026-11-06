@@ -1,0 +1,79 @@
+apiVersion: appthrust.io/v1alpha1
+kind: ApplicationStackDefinition
+metadata:
+  name: contacts
+spec:
+  access:
+    accessKeys:
+      audience: contacts
+      audienceEnv: CONTACTS_ACCESS_AUDIENCE
+      defaultConnectionScopes:
+      - contacts:read
+      defaultTTL: 720h0m0s
+      keyPrefix: cntct
+      maxTTL: 8760h0m0s
+      scopes:
+      - description: Read contacts, companies, cards and encounters
+        name: contacts:read
+      - description: Create and update contacts and companies; upload cards
+        name: contacts:write
+    audiences:
+    - appthrust-platform-api
+    bearerPassThrough: true
+    scopes:
+    - openid
+    - profile
+    - email
+  components:
+  - defaultValues:
+      internalService: true
+      livenessProbePath: /healthz
+      minScale: 1
+      port: 8080
+      publicURLEnv: CONTACTS_PUBLIC_URL
+      readinessProbePath: /readyz
+    definitionRef:
+      name: web-service
+      version: v1
+    id: web
+  - defaultValues:
+      provider: CNPG
+      storageSize: 10Gi
+    definitionRef:
+      name: postgresql
+      version: v1
+    id: database
+  connections:
+  - from: web
+    name: database
+    to: database
+  dependencies:
+  - definition: directory
+    installPolicy: Automatic
+    publicURLEnv: CONTACTS_DIRECTORY_PUBLIC_URL
+    urlEnv: CONTACTS_DIRECTORY_URL
+  - definition: ai-gateway
+    installPolicy: Automatic
+    urlEnv: CONTACTS_LLM_URL
+  display:
+    category: collaborate
+    description: Scan business cards into shared contacts and see who in your team
+      already knows whom.
+    iconRef:
+      name: contacts
+    title: Contacts
+  publish:
+    hostnameLabel: contacts
+  releaseIdentityEnvPrefix: CONTACTS
+  updatePolicy:
+    allowed:
+    - pinned
+    - follow
+    default: pinned
+  versions:
+  - default: true
+    images:
+      web: ghcr.io/appthrust/platform/contacts@sha256:ee76d16fc359a16fc46be2e5f08e1b94c0dfe3b6f2ca624154158dd301e76002
+    name: 0.1.0
+    served: true
+    stream: "0.1"
