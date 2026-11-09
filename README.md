@@ -29,7 +29,7 @@ The original design and API contract are in
 
 Use Go 1.26 or newer and Bun 1.4.1. The public Go SDK is
 [`github.com/appthrust/appserver-go`](https://github.com/appthrust/appserver-go)
-`v0.2.0`; there are no platform module dependencies or local replacements.
+`v0.3.0`; there are no platform module dependencies or local replacements.
 
 ```sh
 go build ./... && go test ./...
@@ -130,8 +130,8 @@ schema creation. Publisher tests use mocked HTTP and no live service.
 from the read-only `appthrust-ink-pmc001` Contacts ApplicationStackDefinition. Its
 compatibility floor is `0.1.0`, retaining the original immutable
 `ghcr.io/appthrust/platform/contacts@sha256:ee76d16fc359a16fc46be2e5f08e1b94c0dfe3b6f2ca624154158dd301e76002`
-image. The next release is **`0.2.0`**, stream **`0.2`**. No placeholder image for
-that release is committed.
+image. The next release is **`0.3.0`**, stream **`0.3`**, using Project IAM
+membership from appserver-go v0.3.0. No placeholder image is committed.
 
 When a release is authorized, push a `v<semver>` tag. The publisher workflow:
 

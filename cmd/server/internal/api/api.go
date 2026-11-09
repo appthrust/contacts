@@ -148,7 +148,7 @@ func (a *API) route(pattern string, mutation, needsRoles bool, fn endpoint) {
 				httpx.WriteError(w, httpx.Fail(502, "upstream_unavailable", "The platform is temporarily unavailable"), "contacts")
 				return
 			}
-			if access.NotMember || access.TeamID == "" {
+			if access.NotMember {
 				httpx.WriteError(w, httpx.Forbidden(), "contacts")
 				return
 			}
