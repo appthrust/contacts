@@ -1,0 +1,90 @@
+locales:
+  en:
+    title: Contacts
+    tagline: Scan business cards into shared contacts and see who on the team already knows whom.
+    overview: |
+      Contacts turns the business cards your team collects into one shared contact list. Each card is read automatically, filed under the right person and company, and recorded as an encounter, so anyone in the Project can see who has already met someone before reaching out.
+
+      After a meeting, take a photo of the cards or drop the images, and add the date and place you met. A photo of several cards laid out together is split into one card per person. Cards read with enough confidence are registered right away and can still be undone. Only cards with a missing field, an uncertain reading or a possible match with someone already in contacts wait for review, next to the original image, where you link them to an existing contact or create a new one.
+
+      The contact list can be searched by name, reading, company or email and narrowed to a company, a tag or only the people you met; each person shows how many colleagues have met them. A contact page collects every card the team received from that person, the members who know them with links to their Directory profiles, tags and a history of changes. Contacts that look like the same person are proposed as duplicates and never merged automatically, and the list can be exported as a CSV file that opens in Excel.
+
+      Administrators choose whether cards are registered automatically, after a member's review, or entered by hand, and set the confidence thresholds, the fields that must be read, and whether automatically created contacts start out private. Cards are read through the Project's AI Gateway; the settings page shows which model reads them and whether images leave the cluster. Card images and contacts are stored in the Project's own database, and members sign in with their organisation account. Without AI Gateway, images are still kept and each card is entered by hand.
+  ja:
+    title: Contacts
+    tagline: 名刺を撮るだけでチームの連絡先になり、その人と誰が面識があるかがすぐに分かります。
+    overview: |
+      Contacts は、チームが受け取った名刺をひとつの共有連絡先にまとめるアプリです。名刺は自動で読み取られ、人と会社ごとに整理され、誰が会ったかも記録されます。連絡を取る前に、社内ですでに面識のある人を Project のメンバーなら誰でも確かめられます。
+
+      打ち合わせのあとは、名刺を撮影するか画像をドロップして、交換した日と場所を添えます。複数の名刺を並べて撮った画像は、1 人ずつの名刺に切り分けられます。確かに読み取れた名刺はそのまま登録され、あとから取り消すこともできます。項目が欠けている、読み取りに自信がない、登録済みの人と同じかもしれない、といった名刺だけが確認待ちになり、元の画像と見比べながら登録済みの人に紐づけるか、新しい連絡先として登録します。
+
+      連絡先は氏名・ふりがな・会社・メールで探せて、会社やタグ、自分が会った人だけに絞り込めます。一覧には、その人に会ったことのある同僚の人数が表示されます。連絡先のページには、チームが受け取った名刺、面識のあるメンバーと Directory のプロフィールへのリンク、タグ、変更履歴がまとまっています。同じ人に見える連絡先は重複の候補として示され、自動では統合しません。一覧は Excel で開ける CSV に書き出せます。
+
+      管理者は、名刺を自動で登録するか、メンバーの確認を経て登録するか、手で入力するかを選べます。自動登録に使う確かさのしきい値、必ず読み取るべき項目、自動で作る連絡先を非公開にするかどうかも設定できます。名刺の読み取りには Project の AI Gateway を使い、どのモデルで読み取るか、画像がクラスタの外に出るかは設定画面で確認できます。名刺の画像と連絡先は Project のデータベースに保存され、メンバーは組織のアカウントでサインインします。AI Gateway がない場合も画像は保存され、名刺ごとに手で入力できます。
+highlights:
+- screenshot: scan
+  locales:
+    en:
+      title: Photograph the cards, they register themselves
+      body: Drop card images or take photos, with the date and place you met. A photo holding several cards is split into one card per person, and cards read with confidence become contacts right away, with an undo if something is off.
+    ja:
+      title: 撮影するだけで自動登録
+      body: 名刺を撮影するか画像をドロップし、交換した日と場所を添えます。複数枚を並べて撮った画像は 1 人ずつに切り分けられ、確かに読み取れた名刺はすぐに連絡先になります。違っていれば取り消せます。
+- screenshot: review
+  locales:
+    en:
+      title: Review only the uncertain cards
+      body: A card with a missing field, an uncertain reading or a possible match waits for review with the reason shown. Compare the fields with the original image, then link the card to someone already in contacts or create a new contact.
+    ja:
+      title: 迷った名刺だけを確認
+      body: 項目が欠けている、読み取りに自信がない、登録済みの人と同じかもしれない名刺は、理由を添えて確認待ちになります。元の画像と見比べて、登録済みの人に紐づけるか新しい連絡先として登録します。
+- screenshot: contacts
+  locales:
+    en:
+      title: See who already knows them
+      body: Search by name, reading, company or email, grouped by company. Each person shows how many colleagues have met them, and one filter narrows the list to the people you met yourself.
+    ja:
+      title: 誰が会ったことがあるかが分かる
+      body: 氏名・ふりがな・会社・メールで探せて、一覧は会社ごとにまとまります。各行には、その人に会ったことのある同僚の人数が表示され、自分が会った人だけに絞り込むこともできます。
+- screenshot: contact
+  locales:
+    en:
+      title: One page per person
+      body: Every card the team received from the person, the members who know them with links to their Directory profiles, tags, and a history of every change, including the ones made by automatic registration.
+    ja:
+      title: 1 人の情報を 1 ページに
+      body: チームが受け取った名刺、面識のあるメンバーと Directory のプロフィールへのリンク、タグ、変更履歴をまとめて見られます。自動登録による変更も履歴に残ります。
+- screenshot: settings
+  locales:
+    en:
+      title: Decide how cards become contacts
+      body: Administrators choose automatic registration, review first, or manual entry, set confidence thresholds and required fields, and see which model reads the cards and whether images leave the cluster.
+    ja:
+      title: 登録のしかたを Project ごとに設定
+      body: 管理者は、自動登録・確認してから登録・手入力のいずれかを選び、確かさのしきい値と必須項目を決められます。読み取りに使うモデルと、画像がクラスタの外に出るかどうかも確認できます。
+screenshots:
+- name: contacts
+  file: contacts.webp
+  alt:
+    en: Contact list grouped by company (Tokyo Tech, Hikari Logistics, Marunouchi Shoji), with a search box, company and tag filters, an "only people I met" checkbox, and per person the number of colleagues who met them and the last meeting date.
+    ja: 会社ごとにまとまった連絡先の一覧。検索欄、会社とタグの絞り込み、「自分が会った人だけ」のチェックがあり、各行に面識のある同僚の人数と最後に会った日が表示されています。
+- name: scan
+  file: scan.webp
+  alt:
+    en: 'Scan screen: a drop zone with a button to take a photo or choose images, the date and place of the meeting, and an uploaded sheet split into four cards, three registered automatically and one waiting for review.'
+    ja: 取り込み画面。画像のドロップ欄と「撮影する・画像を選ぶ」ボタン、交換した日と場所の入力欄があり、アップロードしたシートが 4 枚の名刺に切り分けられ、3 枚は自動で登録、1 枚は確認待ちになっています。
+- name: review
+  file: review.webp
+  alt:
+    en: 'Review dialog for a card read with low confidence: the card image and a link to the original sheet on the left, the reason for review and a list of similar contacts, and editable name, reading, company, title and phone fields with a Create contact button.'
+    ja: 読み取りに自信がない名刺の確認ダイアログ。左に名刺の画像とシートへのリンク、確認が必要な理由、名前が近い連絡先の欄があり、右で氏名・ふりがな・会社・役職・電話番号を直して「連絡先を登録」できます。
+- name: contact
+  file: contact.webp
+  alt:
+    en: 'A contact page: name, reading, company and title, email and phone, the two business cards received by two different members with date and place, and the list of members who know this person with links to their Directory profiles.'
+    ja: 連絡先のページ。氏名、会社と役職、連絡先情報、2 人のメンバーが受け取った名刺 2 枚、Directory へのリンクつきの「面識のあるメンバー」が並んでいます。
+- name: settings
+  file: settings.webp
+  alt:
+    en: 'Settings: the model that reads cards and a notice that card images stay in the cluster, a choice between automatic registration, review first and no OCR, two confidence sliders, required fields, and a switch to make automatically created contacts private.'
+    ja: 設定画面。読み取りに使うモデルと「名刺画像はクラスタ外に出ません」の表示、登録のしかた（自動・確認してから・OCRしない）、しきい値 2 つ、必要な項目、非公開で作るかのスイッチ。

@@ -57,10 +57,8 @@ func newHarness(t *testing.T, extractor ocr.Extractor, directoryURL ...string) *
 			role = "Admin"
 		}
 		switch r.URL.Path {
-		case "/api/v1/projects/pj-test":
-			httpx.WriteJSON(w, 200, map[string]string{"teamSlug": "team"})
-		case "/api/v1/teams":
-			httpx.WriteJSON(w, 200, map[string]any{"items": []any{map[string]string{"id": "team-id", "slug": "team", "role": role}}})
+		case "/api/v1/projects/pj-test/access":
+			httpx.WriteJSON(w, 200, map[string]any{"member": true, "role": role})
 		case "/api/v1/projects/pj-test/app-installations/contacts":
 			httpx.WriteJSON(w, 200, map[string]any{"id": "contacts", "links": []any{}})
 		default:
