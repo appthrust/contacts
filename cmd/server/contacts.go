@@ -20,6 +20,11 @@ import (
 
 const storeOpenTimeout = 30 * time.Second
 
+// ocrPerCard sits just above the 300 s that the AI gateway and the in-Project
+// model servers allow one completion, so a slow CPU model is bounded by its
+// provider rather than cut short here. A CPU-only gemma3:4b read took 157 s.
+const ocrPerCard = 330 * time.Second
+
 var storeRetryInitial = time.Second
 
 type runningStore struct {
@@ -86,7 +91,7 @@ func contactsHandler(upstreamURL, projectID string) (*pending.Handler, func(), e
 				return nil, err
 			}
 		}
-		worker := ocr.NewWorker(database, extractors, registration.NewRegistrar(database), 1, 180*time.Second)
+		worker := ocr.NewWorker(database, extractors, registration.NewRegistrar(database), 1, ocrPerCard)
 		var settings registration.Settings
 		if err := database.Do(ctx, false, func(tx *store.Tx) error {
 			var err error

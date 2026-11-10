@@ -19,10 +19,11 @@ type Card struct {
 }
 
 // Store atomically claims pending cards and persists their terminal OCR state.
-// A claim keeps the external state pending; the store owns claim expiration so
-// interrupted processing or failed terminal writes can be recovered.
+// A claim keeps the external state pending for lease; after that the store may
+// hand the card out again so interrupted processing or failed terminal writes
+// can be recovered.
 type Store interface {
-	ClaimPendingCards(ctx context.Context, limit int) ([]Card, error)
+	ClaimPendingCards(ctx context.Context, limit int, lease time.Duration) ([]Card, error)
 	RecordExtraction(ctx context.Context, cardID string, x Extraction) (Extraction, error)
 	FailCard(ctx context.Context, id string, reason string) error
 	MarkUnavailable(ctx context.Context, id string) error
@@ -70,12 +71,17 @@ func (w *Worker) Kick() {
 	}
 }
 
+const pollInterval = 5 * time.Second
+
+// claimLease outlives one card's worst case: extraction and the terminal write
+// are each bounded by perCard, so a card still being read is never reclaimed.
+func (w *Worker) claimLease() time.Duration { return 2*w.perCard + pollInterval }
+
 // Run claims immediately, on Kick, and every five seconds while idle. It must
 // have only one caller at a time. Only free processing slots are claimed, so
 // cards never spend their processing deadline waiting in an in-memory queue.
 // Store errors back off five seconds even if more uploads arrive meanwhile.
 func (w *Worker) Run(ctx context.Context) {
-	const pollInterval = 5 * time.Second
 	jobs := make(chan Card)
 	results := make(chan bool, w.concurrency)
 	var workers sync.WaitGroup
@@ -101,7 +107,7 @@ func (w *Worker) Run(ctx context.Context) {
 			return
 		}
 		if claim && !backingOff && active < w.concurrency {
-			cards, err := w.store.ClaimPendingCards(ctx, w.concurrency-active)
+			cards, err := w.store.ClaimPendingCards(ctx, w.concurrency-active, w.claimLease())
 			if err != nil {
 				if ctx.Err() != nil {
 					return

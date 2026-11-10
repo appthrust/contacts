@@ -73,6 +73,11 @@ Gateway. `CONTACTS_PUBLIC_URL` must be an HTTPS origin. The listen default is
 The image remains `gcr.io/distroless/static:nonroot`, runs as user `65532`, exposes
 `8080`, serves the SPA from `/srv/contacts`, and starts `/contacts-server`.
 OCR is a Go client of AI Gateway, not a dependency on a native OCR executable.
+One card is read at a time. A read may take up to 330 seconds, just above the 300
+seconds AI Gateway and the in-Project model servers allow one completion, so a
+CPU-only model such as `llm` (`gemma3:4b`, about 160 seconds per card on 2 CPUs)
+finishes instead of failing with `context deadline exceeded`. Cards uploaded
+meanwhile stay `pending` and are read in order.
 
 ### Mock behavior
 
