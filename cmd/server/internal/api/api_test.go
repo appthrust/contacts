@@ -162,30 +162,41 @@ func (fakeExtractor) Extract(context.Context, []byte, string, string) (ocr.Extra
 
 type fakeOCRQueue struct {
 	enqueue func(string, string)
+	forget  func(string)
 	kick    func()
 }
 
 func (q fakeOCRQueue) Enqueue(id, authorization string) { q.enqueue(id, authorization) }
-func (q fakeOCRQueue) Kick()                            { q.kick() }
+func (q fakeOCRQueue) Forget(id string) {
+	if q.forget != nil {
+		q.forget(id)
+	}
+}
+func (q fakeOCRQueue) Kick() { q.kick() }
 
 func TestUploadAndRetryEnqueueCallerBearer(t *testing.T) {
 	h := newHarness(t, fakeExtractor{})
 	var enqueuedID, enqueuedAuthorization string
 	var events []string
+	visible := func(id string) bool {
+		var count int
+		require.NoError(t, h.db.Do(t.Context(), false, func(tx *store.Tx) error {
+			return tx.SQL.QueryRowContext(t.Context(), `SELECT count(*) FROM cards WHERE id=$1 AND ocr_state='pending'`, id).Scan(&count)
+		}))
+		return count == 1
+	}
 	queue := fakeOCRQueue{
 		enqueue: func(id, authorization string) {
 			events = append(events, "enqueue")
 			enqueuedID, enqueuedAuthorization = id, authorization
-			// A separate transaction must see the pending card before the
-			// worker receives its credential.
-			require.NoError(t, h.db.Do(t.Context(), false, func(tx *store.Tx) error {
-				card, err := tx.Card(id, store.Viewer{ID: "owner"})
-				require.NoError(t, err)
-				require.Equal(t, "pending", card.OCRState)
-				return err
-			}))
+			// The worker must hold the credential before another transaction
+			// can see, and therefore claim, the pending card.
+			require.False(t, visible(id), "card committed before its credential was enqueued")
 		},
-		kick: func() { events = append(events, "kick") },
+		kick: func() {
+			events = append(events, "kick")
+			require.True(t, visible(enqueuedID), "worker woken before the card committed")
+		},
 	}
 	h.handler = New(h.db, h.auth, h.platform, nil, Options{ProjectID: "pj-test", OCR: OCRInfo{Available: true}, OCRQueue: queue})
 	card := h.upload("owner", "")

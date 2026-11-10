@@ -30,6 +30,7 @@ type uploadResponse struct {
 
 type ocrQueue interface {
 	Enqueue(id, auth string)
+	Forget(id string)
 	Kick()
 }
 

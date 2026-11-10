@@ -189,16 +189,27 @@ func (a *API) route(pattern string, mutation, needsRoles bool, fn endpoint) {
 				}
 			}
 			body, status, err = fn(s)
+			if err == nil && a.options.OCRQueue != nil {
+				// Hand over the credential before this transaction commits. Writes
+				// are serialized, so a worker claim that queued behind this request
+				// runs the instant it commits and would find the card with no
+				// credential, recording it unavailable.
+				for _, id := range s.ocrCardIDs {
+					a.options.OCRQueue.Enqueue(id, s.bearer)
+				}
+			}
 			return err
 		})
 		if err != nil {
+			if a.options.OCRQueue != nil {
+				for _, id := range s.ocrCardIDs {
+					a.options.OCRQueue.Forget(id)
+				}
+			}
 			httpx.WriteError(w, err, "contacts")
 			return
 		}
 		if len(s.ocrCardIDs) > 0 && a.options.OCRQueue != nil {
-			for _, id := range s.ocrCardIDs {
-				a.options.OCRQueue.Enqueue(id, s.bearer)
-			}
 			a.options.OCRQueue.Kick()
 		}
 		if s.settings != nil && a.options.OnSettingsChanged != nil {

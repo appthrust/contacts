@@ -58,9 +58,16 @@ func (w *Worker) SetPreference(names []string) {
 }
 
 // Enqueue keeps the caller's credential only in memory until this worker claims
-// the card. Call it after committing the card, then Kick to wake the worker.
+// the card. Call it before the card's transaction commits, so the credential is
+// present whenever the card can be claimed; Forget it if the commit fails, and
+// Kick after a successful commit to wake the worker.
 func (w *Worker) Enqueue(cardID, authorization string) {
 	w.bearers.Store(cardID, authorization)
+}
+
+// Forget drops the credential of a card whose transaction did not commit.
+func (w *Worker) Forget(cardID string) {
+	w.bearers.Delete(cardID)
 }
 
 // Kick coalesces upload notifications without blocking their request handlers.

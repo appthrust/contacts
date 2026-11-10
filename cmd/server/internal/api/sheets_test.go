@@ -57,29 +57,33 @@ func uploadSheetPNG(h *harness, contact string) (*httptest.ResponseRecorder, []b
 	return h.request("owner", "POST", "/cards", &body, writer.FormDataContentType(), 0), imageData.Bytes()
 }
 
-func TestSheetUploadEnqueuesAfterCommitAndDeletesLastSheet(t *testing.T) {
+func TestSheetUploadEnqueuesBeforeCommitAndDeletesLastSheet(t *testing.T) {
 	h := newHarness(t, fakeExtractor{})
 	var enqueued, events []string
 	var normalized []byte
+	committed := func() (cards, sheets int) {
+		require.NoError(t, h.db.Do(t.Context(), false, func(tx *store.Tx) error {
+			return tx.SQL.QueryRowContext(t.Context(), `SELECT (SELECT count(*) FROM cards),(SELECT count(*) FROM sheets)`).Scan(&cards, &sheets)
+		}))
+		return cards, sheets
+	}
 	queue := fakeOCRQueue{
 		enqueue: func(id, authorization string) {
 			enqueued = append(enqueued, id)
 			events = append(events, "enqueue")
 			require.Equal(t, token("owner"), authorization)
-			require.NoError(t, h.db.Do(t.Context(), false, func(tx *store.Tx) error {
-				// Every card and the sheet must already be committed when the
-				// first credential is handed to the worker.
-				var cards, sheets int
-				require.NoError(t, tx.SQL.QueryRowContext(t.Context(), `SELECT (SELECT count(*) FROM cards),(SELECT count(*) FROM sheets)`).Scan(&cards, &sheets))
-				require.Equal(t, 3, cards)
-				require.Equal(t, 1, sheets)
-				card, err := tx.Card(id, store.Viewer{ID: "owner"})
-				require.NoError(t, err)
-				require.Equal(t, "pending", card.OCRState)
-				return nil
-			}))
+			// No card may be claimable before every credential is with the worker.
+			cards, sheets := committed()
+			require.Zero(t, cards)
+			require.Zero(t, sheets)
 		},
-		kick: func() { events = append(events, "kick") },
+		kick: func() {
+			events = append(events, "kick")
+			// The sheet and all of its cards commit together.
+			cards, sheets := committed()
+			require.Equal(t, 3, cards)
+			require.Equal(t, 1, sheets)
+		},
 	}
 	splitter := splitterFunc(func(ctx context.Context, data []byte, contentType string, width, height int, authorization string) ([]ocr.Region, error) {
 		require.Equal(t, token("owner"), authorization)
