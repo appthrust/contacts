@@ -58,7 +58,7 @@ type fakeStore struct {
 	invalidContext bool
 }
 
-func (s *fakeStore) ClaimPendingCards(ctx context.Context, limit int) ([]Card, error) {
+func (s *fakeStore) ClaimPendingCards(ctx context.Context, limit int, _ time.Duration) ([]Card, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err := ctx.Err(); err != nil {

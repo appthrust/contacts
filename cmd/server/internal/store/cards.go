@@ -288,13 +288,13 @@ func (t *Tx) RetryOCR(id string, v Viewer) (domain.BusinessCard, error) {
 	}
 	return t.Card(id, v)
 }
-func (s *Store) ClaimPendingCards(ctx context.Context, limit int) ([]ocr.Card, error) {
+func (s *Store) ClaimPendingCards(ctx context.Context, limit int, lease time.Duration) ([]ocr.Card, error) {
 	out := []ocr.Card{}
 	if limit < 1 {
 		return out, nil
 	}
 	err := s.Do(ctx, true, func(t *Tx) error {
-		rows, err := t.SQL.QueryContext(ctx, `UPDATE cards SET claimed_at=now() WHERE id IN (SELECT id FROM cards WHERE ocr_state='pending' AND (claimed_at IS NULL OR claimed_at<now()-interval '5 minutes') ORDER BY created_at,id LIMIT $1 FOR UPDATE SKIP LOCKED) RETURNING id,image,image_content_type,owner_member_id`, limit)
+		rows, err := t.SQL.QueryContext(ctx, `UPDATE cards SET claimed_at=now() WHERE id IN (SELECT id FROM cards WHERE ocr_state='pending' AND (claimed_at IS NULL OR claimed_at<now()-make_interval(secs => $2)) ORDER BY created_at,id LIMIT $1 FOR UPDATE SKIP LOCKED) RETURNING id,image,image_content_type,owner_member_id`, limit, lease.Seconds())
 		if err != nil {
 			return err
 		}
