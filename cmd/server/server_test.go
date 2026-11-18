@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -92,4 +93,32 @@ func TestPendingSurfaceAndRelease(t *testing.T) {
 		handler.ServeHTTP(w, httptest.NewRequest(http.MethodGet, path, nil))
 		require.Equal(t, status, w.Code, path)
 	}
+}
+
+func TestReleaseFallbackRequestLog(t *testing.T) {
+	for _, key := range []string{"PLATFORM_OIDC_ISSUER", "PLATFORM_OIDC_ISSUER_CA_PEM", "CONTACTS_RELEASE_VERSION", "CONTACTS_SOURCE_REVISION", "CONTACTS_ARTIFACT_DIGEST"} {
+		t.Setenv(key, "")
+	}
+	handler, err := newHandler(t.TempDir(), "http://127.0.0.1:1", "pj-test", nil, nil)
+	require.NoError(t, err)
+	var logs bytes.Buffer
+	server := newServer(":8080", handler, &logs)
+	w := httptest.NewRecorder()
+	server.Handler.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/releasez?private=query-marker", nil))
+	require.Equal(t, http.StatusServiceUnavailable, w.Code)
+	require.Equal(t, "UI release status unavailable\n", w.Body.String())
+
+	var entry struct {
+		Msg, Service, Path, Outcome, Reason string
+		Status                              int
+	}
+	require.NoError(t, json.Unmarshal(logs.Bytes(), &entry))
+	require.Equal(t, 1, bytes.Count(logs.Bytes(), []byte("\n")))
+	require.NotContains(t, logs.String(), "query-marker")
+	require.Equal(t, "request", entry.Msg)
+	require.Equal(t, "contacts", entry.Service)
+	require.Equal(t, "/releasez", entry.Path)
+	require.Equal(t, http.StatusServiceUnavailable, entry.Status)
+	require.Equal(t, "unavailable", entry.Outcome)
+	require.Equal(t, "release_status_unavailable", entry.Reason)
 }

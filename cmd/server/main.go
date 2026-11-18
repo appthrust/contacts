@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/appthrust/appserver-go/appserver/platformenv"
+	"github.com/appthrust/appserver-go/appserver/requestlog"
 )
 
 func main() {
@@ -43,7 +45,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	server := &http.Server{Addr: *listen, Handler: handler, ReadHeaderTimeout: 10 * time.Second}
+	server := newServer(*listen, handler, os.Stderr)
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	go func() {
@@ -57,5 +59,13 @@ func main() {
 	log.Printf("contacts-server listening on %s", *listen)
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
+	}
+}
+
+func newServer(listen string, handler http.Handler, logOutput io.Writer) *http.Server {
+	return &http.Server{
+		Addr:              listen,
+		Handler:           requestlog.Wrap(handler, requestlog.Options{Service: "contacts", Output: logOutput}),
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 }
