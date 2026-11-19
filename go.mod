@@ -3,7 +3,7 @@ module github.com/appthrust/contacts
 go 1.26.0
 
 require (
-	github.com/appthrust/appserver-go v0.7.0
+	github.com/appthrust/appserver-go v0.7.1
 	github.com/lib/pq v1.12.3
 	github.com/oklog/ulid/v2 v2.1.1
 	github.com/stretchr/testify v1.11.1
